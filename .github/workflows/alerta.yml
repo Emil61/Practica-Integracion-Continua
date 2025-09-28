@@ -1,0 +1,35 @@
+name: Notificación CI a ntfy (C#)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  ci-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'   # Última versión LTS
+
+      - name: Compilar y ejecutar Hola Mundo en C#
+        run: |
+          dotnet new console -o HelloApp --force
+          mv Program.cs HelloApp/Program.cs
+          cd HelloApp
+          dotnet run
+
+      - name: Enviar notificación a ntfy
+        run: |
+          MSG="✅ ${GITHUB_REPOSITORY} recibió un push a main por ${GITHUB_ACTOR}. Mensaje: ${GITHUB_EVENT_HEAD_COMMIT_MESSAGE}"
+          curl -s \
+            -H "Title: CI Practica ITLA C#" \
+            -H "Priority: 5" \
+            -H "Tags: rocket" \
+            -d "$MSG" \
+            https://ntfy.sh/devops-itla
