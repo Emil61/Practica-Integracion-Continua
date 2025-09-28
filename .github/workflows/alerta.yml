@@ -15,29 +15,40 @@ jobs:
       - name: Configurar .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'   # Última versión LTS
+          dotnet-version: '8.0.x'
 
       - name: Compilar y ejecutar Hola Mundo en C#
+        shell: bash
         run: |
           dotnet new console -o HelloApp --force
-          mv Program.cs HelloApp/Program.cs
+          # Si ya subiste Program.cs en la raíz, lo movemos dentro del proyecto
+          if [ -f Program.cs ]; then
+            mv Program.cs HelloApp/Program.cs
+          fi
           cd HelloApp
+          dotnet build --nologo
           dotnet run
 
       - name: Enviar notificación a ntfy
+        shell: bash
         run: |
-          MSG="🚀 CI/CD - Electiva 2 DevOps%0A\
-Build EXITOSO ✅%0A\
-Estudiante: Emil Comarazamy #2025-0043\
-Curso: Electiva 2 - DevOps%0A\
-Profesor: Elvys Cruz%0A\
-Repositorio: https://github.com/${GITHUB_REPOSITORY}%0A\
-Rama: ${GITHUB_REF_NAME}%0A\
-Ver detalles: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          
+          # Construimos el mensaje multilínea SIN escapes raros
+          cat <<MSG > message.txt
+🚀 CI/CD - Electiva 2 DevOps
+Build EXITOSO ✅
+Estudiante: Emil Comarazamy #2025-0043
+Curso: Electiva 2 - DevOps
+Profesor: Elvys Cruz
+Repositorio: https://github.com/${GITHUB_REPOSITORY}
+Rama: ${GITHUB_REF_NAME}
+Ver detalles: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+MSG
+
+          # Enviamos el contenido del archivo como cuerpo de la petición
           curl -s \
             -H "Title: CI/CD - Electiva 2 DevOps" \
             -H "Priority: 5" \
             -H "Tags: rocket,white_check_mark" \
-            -d "$MSG" \
+            --data-binary @message.txt \
             https://ntfy.sh/devops-itla
+
