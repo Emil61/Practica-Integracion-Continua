@@ -1,4 +1,4 @@
-name: Notificación CI a ntfy (C#)
+name: CI/CD - Electiva 2 DevOps
 
 on:
   push:
@@ -26,10 +26,18 @@ jobs:
 
       - name: Enviar notificación a ntfy
         run: |
-          MSG="✅ ${GITHUB_REPOSITORY} recibió un push a main por ${GITHUB_ACTOR}. Mensaje: ${GITHUB_EVENT_HEAD_COMMIT_MESSAGE}"
+          MSG="🚀 CI/CD - Electiva 2 DevOps%0A\
+Build EXITOSO ✅%0A\
+Estudiante: Emil Comarazamy #2025-0043\
+Curso: Electiva 2 - DevOps%0A\
+Profesor: Elvys Cruz%0A\
+Repositorio: https://github.com/${GITHUB_REPOSITORY}%0A\
+Rama: ${GITHUB_REF_NAME}%0A\
+Ver detalles: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          
           curl -s \
-            -H "Title: CI Practica ITLA C#" \
+            -H "Title: CI/CD - Electiva 2 DevOps" \
             -H "Priority: 5" \
-            -H "Tags: rocket" \
+            -H "Tags: rocket,white_check_mark" \
             -d "$MSG" \
             https://ntfy.sh/devops-itla
